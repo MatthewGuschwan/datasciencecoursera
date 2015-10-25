@@ -1,0 +1,127 @@
+---
+title: "PML Project"
+author: "Matthew Guschwan"
+date: "October 24, 2015"
+output: html_document
+---
+
+
+```{r}
+## Needed packages
+library(caret)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(e1071)
+library(rattle)   ### needed in final version?
+```
+# Decision Tree
+ I chose random forest algorithms because of their power to identify
+ variables that influence outcomes.
+
+set the seed for the sake of reproducibility
+```{r}
+set.seed(42)
+```
+
+load the data with NA
+(if necessary  setwd()  "~/datasciencecoursera/PML Machine Learning", list.files)
+
+```{r}
+trainUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+testUrl <- "http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+
+trainSet <- read.csv(url(trainUrl), na.strings=c("NA","#DIV/0!", ""))
+testSet <- read.csv(url(testUrl), na.strings=c("NA","#DIV/0!", ""))
+```
+# Clean the data
+ Delete columns with all missing values    
+ When you divide by 0 (zero) or a blank cell, Microsoft Excel displays the error value "#DIV/0!" as the result of the calculation. (wikipedia.org)
+ 
+```{r}
+trainSet<-trainSet[,colSums(is.na(trainSet)) == 0]
+testSet <-testSet[,colSums(is.na(testSet)) == 0]
+```
+Get rid of first few columns as they are not relevant data. - user name, timestamps and windows are not useful as far as I can tell, for this project.
+```{r}
+trainSet   <- trainSet[,-c(1:7)]
+testSet <- testSet[,-c(1:7)]
+```
+ plot the 'classe' variable to get relative values
+```{r}
+plot(trainSet$classe, col="green")
+```
+ 
+ Since the test set is relatively small, I will partition the train set into two groups.
+ 
+```{r}
+subTrainTest <- createDataPartition(y=trainSet$classe, p=0.75, list=FALSE)
+subTrain <- trainSet[subTrainTest, ] 
+subTest <- trainSet[-subTrainTest, ]
+```
+
+second plot of 'classe' shows same relative proportions to larger trainSet
+
+```{r}
+plot(subTrain$classe, col="red")
+```
+ 
+ first model using Decision Tree
+ 
+```{r}
+modelDT <- rpart(classe ~ ., data=subTrain, method="class")
+```
+ 
+ prediction from model1
+ 
+```{r}
+predictionDT <- predict(modelDT, subTest, type = "class")
+# plot the decision tree
+rpart.plot(modelDT)
+```
+
+### Test the results
+
+```{r}
+confusionMatrix(predictionDT, subTest$classe)
+```
+
+Since accuracy is only at 74%, we will try the randomForest approach.
+
+# Model 2 - the randomForest approach
+
+```{r}
+model2 <- randomForest(classe ~. , data=subTrain, method="class")
+prediction2 <- predict(model2, subTest, type = "class")
+```
+
+### Test results on subTesting data set:
+
+```{r}
+confusionMatrix(prediction2, subTest$classe)
+```
+
+# Conclusion
+
+The Random Forest algorithm provided much better accuracy at 99.5% as opposed to about 74% for the Decision Tree approach.  For  expected out-of-sample error (1-accuracy) is estimated at 0.005, or 0.5%   The Random Forest approach performed exceptionally well.
+
+#Final Prediction
+
+```{r}
+finalPrediction <- predict(model2, testSet, type="class")
+finalPrediction
+```
+
+#Submission Code.
+
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+setwd("~/datasciencecoursera/PML Machine Learning/Predictions")
+
+pml_write_files(finalPrediction)
