@@ -29,7 +29,8 @@ reference.com
 ====
 
 
-Take Bryce Harper, for example.  His WAR in 2013 was 3.7, 2014 was 1.0 and 2015 was 9.9.
+Take Bryce Harper, for example.  His WAR in 2013 was 3.7, 2014 was 1.0 and 2015 was 9.9.  His Three Year Average
+(ThreeYAv) is calculated below.
 
 
 
@@ -47,14 +48,14 @@ ThreeYAv
 ========================================================
 Are you an optimist or pessimist?
 
-If optimist
-```{r, echo=FALSE}
-optimist  <- ThreeYAv + .1*ThreeYAv
+If optimist, calculate predicted WAR for 2016 as 115% of Three Year Avg.
+```{r}
+optimist  <- (1.15 * ThreeYAv)
 optimist
 ```
-If pessimist
+If pessimist, calculate predicated WAR for 2016 as 85% of Three Year Avg.
 ```{r}
-pessimist  <- ThreeYAv - .1*ThreeYAv
+pessimist  <- (.85 * ThreeYAv)
 pessimist
 ```
 

@@ -19,7 +19,8 @@ shinyUI(
                   sidebarPanel(
                         selectInput("player", "Select Player:", 
                                 choices=colnames(WARs)),
-                                    ##choices=as.character(WARs$LastN)),   ###WARd[,1] c("Harper", "Greinke")
+                                                   hr(),
+                        selectInput("Optim", "Are you an optimist?", choices=c('Yes', 'No')),
                         hr(),
                         helpText("List of 10 baseball players with highest Wins Against Replacement (WAR)
                                  according to Baseball Reference.com.  For WAR explanation, see:
@@ -29,7 +30,10 @@ shinyUI(
                               
                   # Create a spot for the barplot 
                   mainPanel(
-                        plotOutput("WARPlot")  
+                        plotOutput("WARPlot"),
+                        hr(),
+                        tags$p("2016 Prediction:"),
+                        verbatimTextOutput("WARPred")
                   )
                   
             )

@@ -24,5 +24,22 @@ shinyServer(function(input, output) {
                         ylab="W.A.R.",
                         xlab="WAR over three Years")
       })
+
+      dataInput <- reactive({
+            getSymbols(input$symb, src = "yahoo", 
+                       from = input$dates[1],
+                       to = input$dates[2],
+                       auto.assign = FALSE)
+      })
+      
+      #OPR  <- reactive({
+       #     OPR  <- ifelse((input$Optim=='Yes'), 1.1111, 9.99999)
+      #})
+      
+      output$WARPred  <- renderText({
+           Avg  <-  WARs[ 4 ,  grep(input$player,colnames(WARs)) ]
+        OPR  <- ifelse((input$Optim=='Yes'), Avg + .15*Avg , Avg - .15*Avg)          
+      })
+      
 })
 
